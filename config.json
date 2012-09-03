@@ -1,0 +1,110 @@
+{"MS": "C376",
+    "merges":
+    [
+		{
+		    "name": "THE WORLD'S OPINION",
+		    "versions": 
+		    [ 
+		        "THE WORLD'S OPINION  \[cutting, p. 187\]",
+		        "THE WORLD'S OPINION  (p. 627)" 
+		    ] 
+		},
+		{ 
+            "name": "WHY? \[1\]",
+		    "versions": 
+		    [ 
+		        "WHY? \[1\]  (p. 355)",
+		        "WHY? \[1\] (p. 468)"
+		    ] 
+		},
+        {
+            "name": "THE GREAT FISH OF THE SEA",
+            "versions": 
+            [
+				"THE GREAT FISH OF THE SEA (SEE)  (p. 563)",
+				"THE GREAT FISH OF THE SEA  (p. 577)"
+            ]
+        },
+        {
+            "name": "NEITHER WILL DO",
+            "versions": 
+            [
+                "NEITHER WILL DO  (p. 114)",
+                "NEITHER WILL DO  (p. 459)"
+            ]
+        },
+        {
+            "name": "MORNING (1)",
+            "versions": 
+            [  
+				"MORNING  (p. 461)",
+				"MORNING (1) [p. 363]"
+            ]
+        },
+        {
+            "name": "JOSEPHINE",
+            "versions": 
+            [  
+				"JOSEPHINE  (p. 598)",
+				"JOSEPHINE  (p. 600)"
+            ]
+        },
+		{
+            "name": "HOW COMES IT?",		
+            "versions": 
+            [
+                "HOW COMES IT?  (p. 650)",
+				"HOW COMES IT? (p. 673)"
+            ]
+        },
+        {
+            "name": "HOPE ON",
+            "versions": 
+            [
+				"HOPE ON  (p. 671)",
+				"HOPE ON  (p. 462)",
+				"HOPE ON  (p. 30)"
+            ]
+        },
+        {
+            "name": "GLORY TESTED",
+            "versions": 
+            [
+				"GLORY TESTED  [p. 139]",
+				"GLORY TESTED [p. 359]"
+            ]
+        },
+        {
+            "name": "CONSOLATION",
+            "versions": 
+            [
+				"CONSOLATION  [p. 157]",
+				"CONSOLATION  [p. 361]"
+			]
+		},
+        {
+            "name": "CHARITY",
+            "versions": 
+            [
+				"CHARITY  (p. 515)",
+				"CHARITY  (p. 357)"
+			]
+        },
+        {
+            "name": "AUSTRALIA'S FIRST GREAT POET",
+            "versions": 
+            [
+				"AUSTRALIA'S FIRST GREAT POET  (p. 586)",
+				"AUSTRALIA'S FIRST GREAT POET  (p. 347)"
+			]
+		}
+    ],
+    "removals":
+    [
+        "\[XF cutting\]",
+        "\[unicum\]",
+        "\[XF CUTTING\]",
+        "\[part cutting\]",
+        "\[cutting\]"
+    ]
+}
