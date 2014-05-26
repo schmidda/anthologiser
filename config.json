@@ -1,110 +1,152 @@
-{"MS": "C376",
+{
     "merges":
     [
-		{
+        {
+            "name": "A SUPERNATURALISED BATTLE-PIECE FROM HOMER I",
+            "versions":
+            [
+                "A SUPERNATURALISED BATTLE-PIECE FROM HOMER"
+            ]
+        },
+		{ 
+            "name": "DIAN",
+		    "versions": 
+		    [ 
+		        "DIAN  (fragment, p. 10)"
+		    ] 
+		},
+        {
+            "name": "THE WITCH OF HEBRON",
+            "versions":
+            [
+                "THE WITCH OF HEBRON [Part VII fragment]"
+            ]
+        },
+        {
 		    "name": "THE WORLD'S OPINION",
 		    "versions": 
 		    [ 
-		        "THE WORLD'S OPINION  \[cutting, p. 187\]",
-		        "THE WORLD'S OPINION  (p. 627)" 
-		    ] 
-		},
-		{ 
-            "name": "WHY? \[1\]",
-		    "versions": 
-		    [ 
-		        "WHY? \[1\]  (p. 355)",
-		        "WHY? \[1\] (p. 468)"
+		        "THE WORLD'S OPINION  [cutting, p. 187]"
 		    ] 
 		},
         {
             "name": "THE GREAT FISH OF THE SEA",
             "versions": 
             [
-				"THE GREAT FISH OF THE SEA (SEE)  (p. 563)",
-				"THE GREAT FISH OF THE SEA  (p. 577)"
-            ]
-        },
-        {
-            "name": "NEITHER WILL DO",
-            "versions": 
-            [
-                "NEITHER WILL DO  (p. 114)",
-                "NEITHER WILL DO  (p. 459)"
-            ]
+				"THE GREAT FISH OF THE SEA (SEE)"
+		    ]
         },
         {
             "name": "MORNING (1)",
             "versions": 
             [  
-				"MORNING  (p. 461)",
-				"MORNING (1) [p. 363]"
+				"MORNING"
             ]
         },
         {
-            "name": "JOSEPHINE",
-            "versions": 
-            [  
-				"JOSEPHINE  (p. 598)",
-				"JOSEPHINE  (p. 600)"
-            ]
-        },
-		{
-            "name": "HOW COMES IT?",		
-            "versions": 
+            "name": "NOON, EVENING, AND NIGHT",
+            "versions":
             [
-                "HOW COMES IT?  (p. 650)",
-				"HOW COMES IT? (p. 673)"
+                "NOON, EVENING AND NIGHT"
             ]
         },
         {
-            "name": "HOPE ON",
-            "versions": 
+            "name": "OLD BILLOWY HAWKESB'RY",
+            "versions":
             [
-				"HOPE ON  (p. 671)",
-				"HOPE ON  (p. 462)",
-				"HOPE ON  (p. 30)"
+                "OLD BILLOWY HAWKES'BRY",
+                "OLD BILLOWY HAWKSB'RY"
             ]
         },
         {
-            "name": "GLORY TESTED",
-            "versions": 
+            "name": "ON THE EASTER ILLUMINATION OF ST. PETER'S AT ROME (1)",
+            "versions":
             [
-				"GLORY TESTED  [p. 139]",
-				"GLORY TESTED [p. 359]"
+                "ON THE EASTER ILLUMINATION OF ST. PETER'S AT ROME 1"
             ]
         },
         {
-            "name": "CONSOLATION",
-            "versions": 
+            "name": "ON THE EASTER ILLUMINATION OF ST. PETER'S AT ROME (2)",
+            "versions":
             [
-				"CONSOLATION  [p. 157]",
-				"CONSOLATION  [p. 361]"
-			]
-		},
-        {
-            "name": "CHARITY",
-            "versions": 
-            [
-				"CHARITY  (p. 515)",
-				"CHARITY  (p. 357)"
-			]
+                "ON THE EASTER ILLUMINATION OF ST. PETER'S AT ROME 2"
+            ]
         },
         {
-            "name": "AUSTRALIA'S FIRST GREAT POET",
+            "name": "THE BEAUTIFUL 1A",
             "versions": 
             [
-				"AUSTRALIA'S FIRST GREAT POET  (p. 586)",
-				"AUSTRALIA'S FIRST GREAT POET  (p. 347)"
-			]
-		}
+                "THE BEAUTIFUL IA",
+                "THE BEAUTIFUL IA The Spirit of Beauty"
+            ]
+        },
+        {
+            "name": "THE BEAUTIFUL 1",
+            "versions": 
+            [
+                "THE BEAUTIFUL I",
+                "THE BEAUTIFUL I BEAUTY"
+            ]
+        },
+        {
+            "name": "THE MIDNIGHT MOON IS RIDING HIGH ALOFT",
+            "versions":
+            [
+                "THE MIDNIGHT MOON IS RIDING RIGHT ALOFT"
+            ]
+        },
+        {
+            "name": "TO HENRY PARKES BEFORE HAVING SEEN HIM",
+            "versions":
+            [
+                "TO HENRY PARKES. BEFORE HAVING SEEN HIM"
+            ]
+        },
+        {
+            "name": "TO MR J. J. WALSH IN ANSWER TO A LETTER",
+            "versions":
+            [
+                "TO MR. J. J. WALSH IN ANSWER TO A LETTER"
+            ]
+        },
+        {
+            "name": "A SUPERNATURALISED BATTLE-PIECE I",
+            "versions":
+            [
+                "A SUPERNATURALISED BATTLE-PIECE FROM HOMER",
+                "A SUPERNATURALISED BATTLE-PIECE FROM HOMER I"
+            ]
+        },
+        {
+            "name": "LOVE, FRIENDSHIP AND FAITH",
+            "versions":
+            [
+                "LOVE, FRIENDSHIP, AND FAITH"
+            ]
+        },
+        {
+            "name": "MORNING (1)",
+            "versions":
+            [
+                "MORNING"
+            ]
+        },
+        {
+            "name": "WHY (1)",
+            "versions":
+            [
+                "WHY [1]"
+            ]
+        }
     ],
     "removals":
     [
-        "\[XF cutting\]",
-        "\[unicum\]",
-        "\[XF CUTTING\]",
-        "\[part cutting\]",
-        "\[cutting\]"
+        "[XF cutting]",
+        "[unicum]",
+        "[XF CUTTING]",
+        "[part cutting]",
+        "[cutting]",
+        "#FIRST PASS#",
+        "(XFile)"
     ]
 }

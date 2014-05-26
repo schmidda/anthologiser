@@ -21,7 +21,7 @@ import java.util.Arrays;
  * A collection of files that can be allocated to a set of sub-directories
  * @author desmond
  */
-public class FileMap extends HashMap<PunctIgnoreString,FolderItem>
+public class FileMap extends HashMap<String,MultiFormatDir>
 {
     static int MAX_LEN = 8;
     File tempDir;
@@ -39,7 +39,7 @@ public class FileMap extends HashMap<PunctIgnoreString,FolderItem>
         if ( tempDir.exists() )
             Utils.removeDir( tempDir );
         tempDir.mkdir();
-        scanDir( folder );
+        scanDir( folder, "" );
     }
     /**
      * Get the temporary directory so other classes can write files to it
@@ -50,11 +50,12 @@ public class FileMap extends HashMap<PunctIgnoreString,FolderItem>
         return tempDir;
     }
     /**
-     * Scan a directory for folders
+     * Scan an existing directory for folders
      * @param folder the folder we are to scan
+     * @param relPath the relativePath to the item
      * @throws Exception 
      */
-    final void scanDir( File folder ) throws Exception
+    final void scanDir( File folder, String relPath ) throws Exception
     {
         File[] files = folder.listFiles();
         for ( int i=0;i<files.length;i++ )
@@ -64,16 +65,14 @@ public class FileMap extends HashMap<PunctIgnoreString,FolderItem>
                 String fname = files[i].getName();
                 if ( fname.startsWith("%") )
                 {
-                    if ( !fname.substring(1).equals(
-                        Anthologiser.ANTHOLOGIES_FOLDER) )
-                    {
-                        ingest( files[i] );
-                        Utils.removeDir( files[i] );
-                    }
+                    ingest( files[i], relPath );
+                    Utils.removeDir( files[i] );
                 }
                 else
                 {
-                    scanDir( files[i] );
+                    String newRelPath = (relPath.length()>0)?relPath + File.separator 
+                        + files[i].getName():files[i].getName();
+                    scanDir( files[i], newRelPath );
                     Utils.removeDir( files[i] );
                 }
             }
@@ -86,11 +85,13 @@ public class FileMap extends HashMap<PunctIgnoreString,FolderItem>
      * Add a dir already checked for % in its name
      * @param dir a dir starting with "%"
      */
-    void ingest( File dir ) throws Exception
+    void ingest( File dir, String relPath ) throws Exception
     {
-        String name = dir.getName();
-        FolderItem fi = new FolderItem( tempDir, dir );
-        put( new PunctIgnoreString(name), fi );
+        String name = (relPath.length()>0)?relPath+File.separator+dir.getName():dir.getName();
+        File dstDir = new File( tempDir, name );
+        // make relpath a property ofmultiformatdir
+        MultiFormatDir mfd = new MultiFormatDir( dstDir, dir, relPath );
+        put( name, mfd );
     }
     /**
      * Compute a unique prefix for one string compared to another: as 
@@ -136,37 +137,57 @@ public class FileMap extends HashMap<PunctIgnoreString,FolderItem>
      * Save an entire filemap
      * @param dst the destination folder
      * @param anthology the anthology that needs our subdirectories
+     * @param usingSubFolders true if we split up into subfolders
      */
-    public void save( File dst, Anthology anthology ) throws Exception
+    public void save( File dst, Anthology anthology, boolean usingSubFolders ) 
+            throws Exception
     {
         int numBuckets = 2*(int)Math.round(Math.log(size()));
-        int bucketSize = (size()/numBuckets)+1;
-        String prev = null;
-        Set<PunctIgnoreString> keys = keySet();
-        PunctIgnoreString[] array = new PunctIgnoreString[size()];
-        keys.toArray( array );
-        // need to sort ignoring punctuation
-        Arrays.sort(array);
-        for ( int i=0;i<array.length;i+=bucketSize )
+        if ( numBuckets != 0 )
         {
-            String first = array[i].str;
-            String last = (i+bucketSize-1>=array.length)
-                ?array[array.length-1].str:array[i+bucketSize-1].str;
-            String leading = uniquePrefix(first,last,prev);
-            String trailing = uniquePrefix(last,first,null);
-            prev = trailing;
-            String subFolder = " "+leading+"-"+trailing;
-            File dstFolder = new File( dst, subFolder );
-            if ( !dstFolder.exists() )
-                dstFolder.mkdir();
-            for ( int j=i;j<i+bucketSize&&j<array.length;j++ )
+            int bucketSize = (size()/numBuckets)+1;
+            String prev = null;
+            Set<String> keys = keySet();
+            String[] array = new String[size()];
+            keys.toArray( array );
+            // need to sort ignoring punctuation
+            Arrays.sort(array);
+            String subFolder = "";
+            for ( int i=0;i<array.length;i+=bucketSize )
             {
-                FolderItem fi = get( array[j] );
-                fi.save( dstFolder, array[j].str );
-                String poem = array[j].str.substring(1);
-                anthology.addItem( poem, Utils.makeDocID(anthology.getLinkBase()
-                    +subFolder+"/"+poem) );
+                File dstFolder = dst;
+                if ( usingSubFolders )
+                {
+                    String first = array[i];
+                    String last = (i+bucketSize-1>=array.length)
+                        ?array[array.length-1]:array[i+bucketSize-1];
+                    String leading = uniquePrefix(first,last,prev);
+                    String trailing = uniquePrefix(last,first,null);
+                    prev = trailing;
+                    subFolder = " "+leading+"-"+trailing;
+                    dstFolder = new File(dst,subFolder);
+                }
+                boolean success = true;
+                if ( !dstFolder.exists() )
+                    success = dstFolder.mkdir();
+                if ( success )
+                {
+                    for ( int j=i;j<i+bucketSize&&j<array.length;j++ )
+                    {
+                        MultiFormatDir mfd = get( array[j] );
+                        mfd.save( dstFolder, array[j] );
+                        String poem = array[j].substring(1);
+                        String base = Utils.makeDocID(anthology.getLinkBase());
+                        String path = (usingSubFolders)?base+subFolder+"/"+poem:base+poem;
+                        anthology.addItem( poem, path );
+                    }
+                }
+                else
+                    throw new Exception("Couldn't create folder "
+                        +dstFolder.getPath());
             }
         }
+        else
+            System.out.println("No poems to save");
     }
 }

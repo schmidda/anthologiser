@@ -12,7 +12,7 @@
  * along with Anthologiser.  If not, see <http://www.gnu.org/licenses/>.
  */
 package anthologiser;
-import hritserver.json.JSONDocument;
+import calliope.json.JSONDocument;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileInputStream;
@@ -22,7 +22,8 @@ import java.util.Iterator;
 import java.util.ArrayList;
 
 /**
- * Represent the versions file in an anthology folder
+ * Represent the versions file in an anthology folder. Versions are just 
+ * a set of short names and corresponding long names
  * @author desmond 15/5/2012
  */
 public class VersionsDocument extends JSONDocument

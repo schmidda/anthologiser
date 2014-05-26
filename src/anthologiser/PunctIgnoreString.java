@@ -1,11 +1,20 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * This file is part of Anthologiser.
+ * Anthologiser is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * Anthologiser is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with Anthologiser.  If not, see <http://www.gnu.org/licenses/>.
  */
 package anthologiser;
 
 /**
- *
+ * A string that compares by ignoring punctuation
  * @author desmond
  */
 public class PunctIgnoreString implements Comparable<PunctIgnoreString>
@@ -14,6 +23,33 @@ public class PunctIgnoreString implements Comparable<PunctIgnoreString>
     public PunctIgnoreString( String str )
     {
         this.str = str;
+    }
+    public int hashCode()
+    {
+        return str.hashCode();
+    }
+    /**
+     * Used by HashMap to equate keys
+     * @param other the other punct-ignore
+     * @return 
+     */
+    public boolean equals( Object other )
+    {
+        if ( other instanceof PunctIgnoreString )
+        {
+            PunctIgnoreString pis = (PunctIgnoreString)other;
+            return pis.str.equals(this.str);
+        }
+        else
+            return false;
+    }
+    /**
+     * Make it easy for debugger
+     * @return a String
+     */
+    public String toString()
+    {
+        return this.str;
     }
     /**
      * Compare two string ignoring punctuation

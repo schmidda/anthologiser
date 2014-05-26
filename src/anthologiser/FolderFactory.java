@@ -12,26 +12,27 @@
  * along with Anthologiser.  If not, see <http://www.gnu.org/licenses/>.
  */
 package anthologiser;
+import java.io.File;
 
 /**
- * Keys used for markup and anthology files
- * @author desmond 15/5/2012
+ * Choose which folder to create
+ * @author desmond
  */
-public class JSONKeys 
+public class FolderFactory 
 {
-    static String VERSIONS = "versions";
-    static String NAME = "name";
-    static String KEY = "key";
-    static String DESCRIPTION = "description";
-    static String VALUE = "value";
-    static String TITLE = "title";
-    static String BODY = "body";
-    static String FORMAT = "format";
-    static String ENTRY = "entry";
-    static String LINK = "link";
-    static String DELETED = "deleted";
-    static String AUTHOR = "author";
-    static String STYLE = "style";
-    static String SECTION = "section";
-    static String VERSION1 = "version1";
+    static Folder makeFolder( File src, File dst, Format format ) throws Exception
+    {
+        dst = new File( dst, format.toString() );
+        switch ( format )
+        {
+            case MVD:
+                return new MVDFolder( src, dst );
+            case TEXT:
+                return new TextFolder( src, dst );
+            case XML:
+                return new XMLFolder( src, dst );
+        }
+        // only used if format is null
+        return null;
+    }
 }

@@ -12,10 +12,10 @@
  * along with Anthologiser.  If not, see <http://www.gnu.org/licenses/>.
  */
 package anthologiser;
-import hritserver.json.JSONDocument;
-import hritserver.json.corcode.STILDocument;
-import hritserver.json.corcode.Range;
-import hritserver.json.corcode.Annotation;
+import calliope.json.JSONDocument;
+import calliope.json.corcode.STILDocument;
+import calliope.json.corcode.Range;
+import calliope.json.corcode.Annotation;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.HashMap;
@@ -25,11 +25,21 @@ import java.util.Set;
  * Represent an anthology file consisting of a plain text file and a 
  * separate STIL markup set in JSON. Preserve the order of poems added to 
  * the anthology.
+ * structure is:
+ * anthologies
+ *     |
+ *     parent ----- [MVD]
+ *                    |
+ *                    -------cortex.mvd
+ *                    |
+ *                    -------corcode
+ *                              |
+ *                              ------- corcode1.json
  * @author desmond 15/5/2012
  */
 public class Anthology 
 {
-    static String CORTEX = "cortex";
+    static String CORTEX_MVD = "cortex.mvd";
     static String CORCODE = "corcode";
     String linkBase;
     /** anthology title */
@@ -40,7 +50,8 @@ public class Anthology
     /** markup source file */
     File msrc;
     /** anthology dir */
-    File dir,corTexDir,corCodeDir;
+    File parent,corTexFile,corCodeDir;
+    File mvdDir;
     /** order-preserving array */
     ArrayList<String> order;
     /** the name of this anthology */
@@ -58,12 +69,13 @@ public class Anthology
         links = new HashMap<String,String>();
         order = new ArrayList<String>();
         this.linkBase = linkBase;
-        this.dir = dir;
+        this.parent = new File( dir, "%"+simpleName );
         this.name = simpleName;
         title = "";
-        corTexDir = new File( dir, CORTEX );
-        corCodeDir = new File( dir, CORCODE );
-        src = new File(corTexDir,name+".json" );
+        mvdDir = new File(parent, "MVD" );
+        corTexFile = new File( mvdDir, CORTEX_MVD );
+        corCodeDir = new File( mvdDir, CORCODE );
+        src = new File(mvdDir,CORTEX_MVD );
         msrc = new File(corCodeDir,name+"-markup.json" );
         internalise();
     }
@@ -124,16 +136,23 @@ public class Anthology
      */
     void externalise() throws Exception
     {
-        if ( !dir.exists() )
-            dir.mkdir();
-        if ( !corTexDir.exists() )
-            corTexDir.mkdir();
+        boolean res = true;
+        if ( !parent.exists() )
+            res = parent.mkdir();
+        if ( !res )
+            throw new Exception("failed to create directory "+parent.getName());
+        if ( !mvdDir.exists() )
+            res = mvdDir.mkdir();
+        if ( !res )
+            throw new Exception("failed to create directory "+mvdDir.getName());
         if ( !corCodeDir.exists() )
-            corCodeDir.mkdir();
-         // construct text and markup
+            res = corCodeDir.mkdir();
+        if ( !res )
+            throw new Exception("failed to create directory "+corCodeDir.getName());
+        // construct text and markup
         int pos = 0;
         StringBuilder sb = new StringBuilder();
-        STILDocument markup = new STILDocument( "anthology");
+        STILDocument markup = new STILDocument();
         sb.append(title);
         sb.append("\n");
         markup.add( new Range(JSONKeys.TITLE, 0, title.length()+1) );
@@ -161,11 +180,37 @@ public class Anthology
         doc.add( JSONKeys.FORMAT, "text/plain", false );
         doc.add( JSONKeys.TITLE, title, false );
         doc.add( JSONKeys.BODY, sb.toString(), false );
+        if ( !src.exists() )
+        {
+            res = true;
+            if ( !src.getParentFile().exists() )
+            {
+                res = src.getParentFile().mkdirs();
+                if ( !res )
+                    throw new Exception("failed to create "+src.getParent());
+            }
+            res = src.createNewFile();
+            if ( !res )
+                throw new Exception("failed to create "+src.getName());
+        }
         FileOutputStream fos = new FileOutputStream( src );
         String docContent = doc.toString();
         fos.write( docContent.getBytes("UTF-8") );
         fos.close();
         // write out the markup file for external programs
+        if ( !msrc.exists() )
+        {
+            res = true;
+            if ( !msrc.getParentFile().exists() )
+            {
+                res = msrc.getParentFile().mkdirs();
+                if ( !res )
+                    throw new Exception("failed to create "+msrc.getParent());
+            }
+            res = msrc.createNewFile();
+            if ( !res )
+                throw new Exception("failed to create "+msrc.getName());
+        }
         fos = new FileOutputStream( msrc );
         String markupString = markup.toString();
         fos.write( markupString.getBytes("UTF-8") );
@@ -211,7 +256,7 @@ public class Anthology
                     addItem( items[i], (String)a.getValue() );
                 }
             }
-            Utils.removeDir( dir );
+            Utils.removeDir( parent );
             // markup file will be writen out afresh by externalise
         }
         // not an error, just not already existing
