@@ -22,5 +22,6 @@ public enum Format
     XML,
     TEXT,
     MVD,
-    JSON
+    JSON,
+    HTML
 }

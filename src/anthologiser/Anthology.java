@@ -13,45 +13,37 @@
  */
 package anthologiser;
 import calliope.json.JSONDocument;
-import calliope.json.corcode.STILDocument;
-import calliope.json.corcode.Range;
-import calliope.json.corcode.Annotation;
+import org.htmlparser.Parser;
+import org.htmlparser.Node;
+import org.htmlparser.Tag;
+import org.htmlparser.Text;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileInputStream;
 import java.util.HashMap;
 import java.util.ArrayList;
-import java.util.Set;
+import org.htmlparser.util.NodeList;
 /**
- * Represent an anthology file consisting of a plain text file and a 
- * separate STIL markup set in JSON. Preserve the order of poems added to 
- * the anthology.
- * structure is:
+ * Represent an anthology file in HTML format. Preserve the order of poems 
+ * added to the anthology. Structure is:
  * anthologies
  *     |
- *     parent ----- [MVD]
+ *     parent ----- [HTML]
  *                    |
- *                    -------cortex.mvd
- *                    |
- *                    -------corcode
- *                              |
- *                              ------- corcode1.json
+ *                    -------name.json
  * @author desmond 15/5/2012
  */
 public class Anthology 
 {
-    static String CORTEX_MVD = "cortex.mvd";
-    static String CORCODE = "corcode";
     String linkBase;
+    String server;
     /** anthology title */
     String title;
     /** anthology description - usually MS library entry */
     String description;
     File src;
-    /** markup source file */
-    File msrc;
-    /** anthology dir */
-    File parent,corTexFile,corCodeDir;
-    File mvdDir;
+    /** anthology file */
+    File htmlFile;
     /** order-preserving array */
     ArrayList<String> order;
     /** the name of this anthology */
@@ -60,23 +52,28 @@ public class Anthology
     HashMap<String,String> links;
     /**
      * Read in an existing anthology or create an empty one
-     * @param dir the directory where the anthology files reside
+     * @param dir the misc directory where the anthology files reside
      * @param simpleName short name of the anthology
-     * @param linnkBase the prefix for all links
+     * @param linkBase the prefix for all links
+     * @param server url minus the linkBase
      */
-    public Anthology( File dir, String simpleName, String linkBase ) throws Exception
+    public Anthology( File dir, String simpleName, String linkBase, 
+        String server ) throws Exception
     {
         links = new HashMap<String,String>();
         order = new ArrayList<String>();
         this.linkBase = linkBase;
-        this.parent = new File( dir, "%"+simpleName );
         this.name = simpleName;
-        title = "";
-        mvdDir = new File(parent, "MVD" );
-        corTexFile = new File( mvdDir, CORTEX_MVD );
-        corCodeDir = new File( mvdDir, CORCODE );
-        src = new File(mvdDir,CORTEX_MVD );
-        msrc = new File(corCodeDir,name+"-markup.json" );
+        this.server = server;
+        title = simpleName;
+        File temp = new File( dir, linkBase+"/"+"anthologies" );
+        boolean res = true;
+        if ( !temp.exists() )
+            res = temp.mkdirs();
+        if ( !res )
+            throw new Exception("Couldn't create "+temp.getPath());
+        htmlFile = new File( temp, simpleName );
+        src = htmlFile;
         internalise();
     }
     /**
@@ -137,49 +134,25 @@ public class Anthology
     void externalise() throws Exception
     {
         boolean res = true;
-        if ( !parent.exists() )
-            res = parent.mkdir();
-        if ( !res )
-            throw new Exception("failed to create directory "+parent.getName());
-        if ( !mvdDir.exists() )
-            res = mvdDir.mkdir();
-        if ( !res )
-            throw new Exception("failed to create directory "+mvdDir.getName());
-        if ( !corCodeDir.exists() )
-            res = corCodeDir.mkdir();
-        if ( !res )
-            throw new Exception("failed to create directory "+corCodeDir.getName());
-        // construct text and markup
-        int pos = 0;
+        // construct the html for one list
         StringBuilder sb = new StringBuilder();
-        STILDocument markup = new STILDocument();
-        sb.append(title);
-        sb.append("\n");
-        markup.add( new Range(JSONKeys.TITLE, 0, title.length()+1) );
-        pos += title.length()+1;
+        sb.append("<li>");
         sb.append( description );
-        sb.append( "\n" );
-        if ( description == null )
-            description = "";
-        markup.add( new Range(JSONKeys.DESCRIPTION, pos, description.length()+1) );
-        pos += description.length()+1;
-        Set<String> keys = links.keySet();
+        sb.append( "<ul>\n" );
         for ( int i=0;i<order.size();i++ )
         {
             String key = order.get( i );
+            sb.append("<li><a href=\"");
+            sb.append(server);
+            sb.append("mvdsingle?DOCID=");
+            String value = links.get(key);
+            sb.append( value );
+            sb.append("\">");
             sb.append( key );
-            sb.append( "\n" );
-            Range r = new Range(JSONKeys.ENTRY, pos, key.length()+1 );
-            String value = links.get(key).replace(" ","%20");
-            r.addAnnotation( JSONKeys.LINK, value );
-            pos += key.length()+1;
-            markup.add( r );
+            sb.append( "</a></li>\n" );
         }
+        sb.append("</ul></li>");
         // write out the text
-        JSONDocument doc = new JSONDocument();
-        doc.add( JSONKeys.FORMAT, "text/plain", false );
-        doc.add( JSONKeys.TITLE, title, false );
-        doc.add( JSONKeys.BODY, sb.toString(), false );
         if ( !src.exists() )
         {
             res = true;
@@ -194,27 +167,12 @@ public class Anthology
                 throw new Exception("failed to create "+src.getName());
         }
         FileOutputStream fos = new FileOutputStream( src );
-        String docContent = doc.toString();
-        fos.write( docContent.getBytes("UTF-8") );
+        fos.write( sb.toString().getBytes("UTF-8") );
         fos.close();
-        // write out the markup file for external programs
-        if ( !msrc.exists() )
-        {
-            res = true;
-            if ( !msrc.getParentFile().exists() )
-            {
-                res = msrc.getParentFile().mkdirs();
-                if ( !res )
-                    throw new Exception("failed to create "+msrc.getParent());
-            }
-            res = msrc.createNewFile();
-            if ( !res )
-                throw new Exception("failed to create "+msrc.getName());
-        }
-        fos = new FileOutputStream( msrc );
-        String markupString = markup.toString();
-        fos.write( markupString.getBytes("UTF-8") );
-        fos.close();
+    }
+    File getAnthologiesDir()
+    {
+        return htmlFile.getParentFile();
     }
     /**
      * Read in an anthology OR just specify where you want it to be
@@ -224,40 +182,90 @@ public class Anthology
      */
     private void internalise() throws Exception
     {
-        if ( src.exists() && msrc.exists() )
+        if ( src.exists() )
         {
-            JSONDocument cortex = JSONDocument.internalise( src, "UTF-8" );
-            this.title = (String)cortex.get( JSONKeys.TITLE );
-            this.description = (String)cortex.get( JSONKeys.DESCRIPTION );
-            STILDocument corcode = STILDocument.internalise( msrc );
-            String body = (String)cortex.get( JSONKeys.BODY );
-            String[] items = body.split("\n");
-            int offset = 0;
-            String key;
-            Range r;
-            for ( int i=0;i<items.length;i++ )
+            File confFile = new File( src.getParentFile(),"config.conf");
+            if ( confFile.exists() )
             {
-                if ( i == 0 )
-                    key = JSONKeys.TITLE;
-                else if ( i==1 )
-                    key = JSONKeys.DESCRIPTION;
-                else
-                    key = JSONKeys.ENTRY;
-                r = corcode.get( key, offset, 
-                    items[i].length()+1 );
-                if ( r != null && r.name.equals(JSONKeys.DESCRIPTION) 
-                    && !descriptionSet() )
-                    description = items[i];
-                offset += items[i].length()+1;
-                if ( r != null && r.annotations != null 
-                    && r.annotations.size()>0 )
+                JSONDocument conf = JSONDocument.internalise( confFile, "UTF-8" );
+                this.title = (String)conf.get( JSONKeys.TITLE );
+            }
+            FileInputStream fis = new FileInputStream( src );
+            int len = (int)src.length();
+            byte[] data = new byte[len];
+            fis.read( data );
+            fis.close();
+            String html = new String(data,"UTF-8");
+            Parser parser = Parser.createParser(html, "UTF-8");
+            NodeList list = parser.parse (null);
+            int state = 0;
+            String link = "";
+            for ( int i=0;i<list.size();i++ )
+            {
+                Node n = list.elementAt(i);
+                switch ( state )
                 {
-                    Annotation a = r.annotations.get( 0 );
-                    addItem( items[i], (String)a.getValue() );
+                    case 0:
+                        if ( n instanceof Tag )
+                        {
+                           Tag t = (Tag)n;
+                            if ( !t.isEndTag() )
+                            {
+                                if ( t.getTagName().equals("h1") )
+                                state = 1;
+                                else if ( t.getTagName().equals("h2") )
+                                    state = 2;
+                                else if ( t.getTagName().equals("p") )
+                                    state = 3;
+                            }
+                        }
+                        break;
+                    case 1:
+                        if ( n instanceof Tag && ((Tag)n).isEndTag() )
+                            state = 0;
+                        else if ( n instanceof Text )
+                        {
+                            title = ((Text)n).getText();
+                            state = 0;
+                        }
+                        break;
+                    case 2:
+                        if ( n instanceof Tag && ((Tag)n).isEndTag() )
+                            state = 0;
+                        else if ( n instanceof Text )
+                        {
+                            description = ((Text)n).getText();
+                            state = 0;
+                        }
+                        break;
+                    case 3:
+                        if ( n instanceof Tag )
+                        {
+                            if ( ((Tag)n).isEndTag() )
+                                state = 0;
+                            else if ( ((Tag)n).getTagName().equals("a") )
+                            {
+                                link = ((Tag)n).getAttribute("href");
+                                state = 4;
+                            }
+                        }
+                        break;
+                    case 4:
+                        if ( n instanceof Text )
+                        {
+                            String name = ((Text)n).getText();
+                            addItem( name, link );
+                            state = 0;
+                        }
+                        else if ( n instanceof Tag && ((Tag)n).isEndTag() )
+                        {
+                            state = 0;
+                        }
+                        break;
                 }
             }
-            Utils.removeDir( parent );
-            // markup file will be writen out afresh by externalise
+            src.delete();
+            // html file will be written out afresh by externalise
         }
         // not an error, just not already existing
     }

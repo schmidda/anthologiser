@@ -15,5 +15,5 @@ java -jar dist/Anthologiser.jar -w /home/desmond/Documents/harpur/mss/works.csv 
 java -jar dist/Anthologiser.jar -w /home/desmond/Documents/harpur/mss/works.csv -f _harpur/+english/harpur/ -l english/harpur/ /home/desmond/Documents/harpur/mss/A97.xml
 java -jar dist/Anthologiser.jar -w /home/desmond/Documents/harpur/mss/works.csv -f _harpur/+english/harpur/ -l english/harpur/ /home/desmond/Documents/harpur/mss/B78.xml
 java -jar dist/Anthologiser.jar -w /home/desmond/Documents/harpur/mss/works.csv -f _harpur/+english/harpur/ -l english/harpur/ /home/desmond/Documents/harpur/mss/C376.xml
-java -jar dist/Anthologiser.jar -w /home/desmond/Documents/harpur/mss/works.csv -f _harpur/+english/harpur/ -l english/harpur/ /home/desmond/Documents/harpur/mss/AC.xml
+java -jar dist/Anthologiser.jar -j -w /home/desmond/Documents/harpur/mss/works.csv -f _harpur/+english/harpur/ -l english/harpur/ /home/desmond/Documents/harpur/mss/AC.xml
 

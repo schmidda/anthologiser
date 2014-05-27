@@ -29,6 +29,8 @@ import java.io.StringReader;
 import java.io.FileInputStream;
 import org.xml.sax.InputSource;
 import java.util.HashMap;
+import java.util.Set;
+import java.util.Iterator;
 //import javax.xml.transform.Transformer;
 //import javax.xml.transform.TransformerFactory;
 //import javax.xml.transform.dom.DOMSource;
@@ -61,6 +63,8 @@ import java.util.HashMap;
  */
 public class Anthologiser 
 {
+    static String MISC_SERVER = "http://dev.austese.net/harpur/";
+    static String MISC_FOLDER = "@misc";
     /** keys for config file */
     static int MAX_POEMS_PER_FOLDER = 15;
     /** the source anthology file */
@@ -76,7 +80,7 @@ public class Anthologiser
     /** folder at top level */
     File topLevelFolder;
     /** folder to store anthologies in */
-    File anthologiesDir;
+    File miscDir;
     /** archive settings: base_url etc. */
     String archive;
     /** map of MVD-names to MVD-folders */
@@ -84,10 +88,11 @@ public class Anthologiser
 //    /** configuration settings */
 //    Config config;
     HashMap<String,String> works;
+    /** if true join the various anthologies into an index */
+    boolean join;
     /** true if using subfolders starting with space */
     boolean useSubFolders;
     static final String DEFAULT_MAIN_FOLDER = "poems";
-    static final String ANTHOLOGIES_FOLDER = "anthologies";
     static final String ARCHIVE_STR = 
         "{\n    \"base_url\": \"http://localhost:8080/\"\n}\n";
     /** 
@@ -157,6 +162,9 @@ public class Anthologiser
                 {
                     switch ( args[i].charAt(1) )
                     {
+                        case 'j':
+                            join = true;
+                            break;
                         case 'l':   // link
                             if ( args.length < i+3 )
                                 sane = false;
@@ -203,7 +211,7 @@ public class Anthologiser
                     folder.mkdir();
             }
             // ensure anthologies folder exists
-            anthologiesDir = new File( folder, ANTHOLOGIES_FOLDER );
+            miscDir = new File( topLevelFolder, MISC_FOLDER );
             // normalise linkBase
             if ( !linkBase.endsWith("/") )
                 linkBase += "/";
@@ -388,6 +396,41 @@ public class Anthologiser
         }
         else
             return hVersion;
+    }
+    /**
+     * Merge all the anthologies into a single file
+     */
+    void joinAnthologies() throws Exception
+    {
+        Set<String> keys = anthologies.keySet();
+        Iterator<String> iter = keys.iterator();
+        String key1 = iter.next();
+        if ( key1 != null )
+        {
+            Anthology anth = anthologies.get(key1);
+            File anthologiesDir = anth.getAnthologiesDir();
+            File dst = new File( anthologiesDir, "index" );
+            if ( !dst.exists() )
+            {
+                File[] files = anthologiesDir.listFiles();
+                dst.createNewFile();
+                FileOutputStream fos = new FileOutputStream(dst);
+                byte[] bytes = 
+                    "<div id=\"listContainer\">\n<ul id=\"expList\">".getBytes();
+                fos.write( bytes );
+                for ( int i=0;i<files.length;i++ )
+                {
+                    FileInputStream fis = new FileInputStream(files[i]);
+                    byte[] data = new byte[(int)files[i].length()];
+                    fis.read( data );
+                    fis.close();
+                    files[i].delete();
+                    fos.write( data );
+                }
+                fos.write("</ul></div>".getBytes());
+                fos.close();
+            }
+        }
     }
     /**
      * Normalise a poem's name by removing unwanted junk and equating
@@ -673,10 +716,10 @@ public class Anthologiser
     {
         try
         {
-            Anthology anth = new Anthology( anthologiesDir, 
-                simpleName(src.getName()), linkBase );
+            Anthology anth = new Anthology( miscDir, 
+                simpleName(src.getName()), linkBase, MISC_SERVER );
             anthologies.put(simpleName(src.getName()),anth);
-            versions = new VersionsDocument( anthologiesDir.getParentFile() );
+            versions = new VersionsDocument( folder );
             versions.internalise();
             Document doc = readXML();
             Element root = doc.getDocumentElement();
@@ -684,8 +727,8 @@ public class Anthologiser
             split( doc, root );
             poems.save( folder, anth, useSubFolders );
             boolean res = true;
-            if ( !anthologiesDir.exists() )
-                res = anthologiesDir.mkdir();
+            if ( !miscDir.exists() )
+                res = miscDir.mkdir();
             if ( !res )
                 throw new Exception("Failed to create anthologies dir");
             anth.externalise();
@@ -716,6 +759,8 @@ public class Anthologiser
             if ( a.checkArgs(args) )
             {
                 a.parse();
+                if ( a.join )
+                    a.joinAnthologies();
             }  
             else
                 usage();

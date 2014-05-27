@@ -31,6 +31,8 @@ public class FolderFactory
                 return new TextFolder( src, dst );
             case XML:
                 return new XMLFolder( src, dst );
+            case HTML:
+                return new XMLFolder( src, dst );
         }
         // only used if format is null
         return null;

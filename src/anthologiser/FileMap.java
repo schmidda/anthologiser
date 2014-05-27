@@ -89,7 +89,7 @@ public class FileMap extends HashMap<String,MultiFormatDir>
     {
         String name = (relPath.length()>0)?relPath+File.separator+dir.getName():dir.getName();
         File dstDir = new File( tempDir, name );
-        // make relpath a property ofmultiformatdir
+        // make relpath a property of multiformatdir
         MultiFormatDir mfd = new MultiFormatDir( dstDir, dir, relPath );
         put( name, mfd );
     }
@@ -178,8 +178,8 @@ public class FileMap extends HashMap<String,MultiFormatDir>
                         mfd.save( dstFolder, array[j] );
                         String poem = array[j].substring(1);
                         String base = Utils.makeDocID(anthology.getLinkBase());
-                        String path = (usingSubFolders)?base+subFolder+"/"+poem:base+poem;
-                        anthology.addItem( poem, path );
+                        String path = (usingSubFolders)?base+subFolder+"%2F"+poem:base+poem;
+                        anthology.addItem( mfd.getTitle(), path );
                     }
                 }
                 else

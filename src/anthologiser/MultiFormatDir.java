@@ -48,8 +48,6 @@ public class MultiFormatDir
                 try
                 {
                     Format f = Format.valueOf(files[i].getName());
-                    if ( files[i].getName().equals("corcode") )
-                        System.out.println("corcode");
                     Folder folder = FolderFactory.makeFolder( files[i], 
                         parent, f );
                     items.add( folder );
@@ -74,6 +72,15 @@ public class MultiFormatDir
                 // ignore all other files
             }
         }
+    }
+    public String getTitle()
+    {
+        String title = "";
+        if ( newConf != null && newConf.containsKey(JSONKeys.TITLE) )
+            title = (String)newConf.get(JSONKeys.TITLE);
+        else if ( config != null && config.jdoc.containsKey(JSONKeys.TITLE) )
+            title = (String)config.jdoc.get(JSONKeys.TITLE);
+        return title;   
     }
     /**
      * Add a key-value pair to the folder
