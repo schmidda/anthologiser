@@ -87,19 +87,21 @@ public class MultiFormatDir
      * @param key the key such as "title"
      * @param value the value such as the poem's title
      */
-    public void addConfigPair( String key, String value ) throws Exception
+    public void addConfigPair( String key, Object value ) throws Exception
     {
+        if ( value instanceof String )
+            value = Utils.cleanCR((String)value,true);
         if ( newConf != null )
         {
-            newConf.add(key,value,false);
+            newConf.put(key,value);
         }
         else if ( config == null )
         {
             newConf = new JSONDocument();
-            newConf.add(key,value,false);
+            newConf.put(key,value);
         }
         else
-            config.jdoc.add( key, value, false);
+            config.jdoc.put( key, value );
     }
     /**
      * Read in a directory from an existing psef-archive

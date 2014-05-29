@@ -124,6 +124,7 @@ public class Anthology
     public void addItem( String name, String link )
     {
         // avoid duplicates, like hashmap
+        name = name.replace("%2f","/");
         if ( !links.containsKey(name) )
             order.add( name );
         links.put( name, link );
@@ -137,7 +138,7 @@ public class Anthology
         // construct the html for one list
         StringBuilder sb = new StringBuilder();
         sb.append("<li>");
-        sb.append( description );
+        sb.append(description);
         sb.append( "<ul>\n" );
         for ( int i=0;i<order.size();i++ )
         {
@@ -189,6 +190,8 @@ public class Anthology
             {
                 JSONDocument conf = JSONDocument.internalise( confFile, "UTF-8" );
                 this.title = (String)conf.get( JSONKeys.TITLE );
+                if ( this.title.contains("\"") )
+                    this.title = this.title.replace("\"","\\\"");
             }
             FileInputStream fis = new FileInputStream( src );
             int len = (int)src.length();

@@ -60,6 +60,26 @@ public class Utils {
         else
             return "";
     }
+    public static String cleanCR( String value, boolean spaces )
+    {
+        StringBuilder sb = new StringBuilder();
+        for ( int i=0;i<value.length();i++ )
+        {
+            if ( value.charAt(i)!='\n'&&value.charAt(i)!='\r' )
+            {
+                if ( value.charAt(i)=='"' && sb.length()>0 && sb.charAt(sb.length()-1) != '\\')
+                {
+                    //sb.append("\\");
+                    sb.append("\"");
+                }
+                else
+                    sb.append(value.charAt(i));
+            }
+            else if ( spaces )
+                sb.append( " " );
+        }
+        return sb.toString();
+    }
     /**
      * Get the file name minus its suffix
      * @param file the file name

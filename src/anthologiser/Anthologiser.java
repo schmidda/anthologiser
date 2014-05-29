@@ -22,6 +22,7 @@ import java.io.ByteArrayOutputStream;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.DocumentBuilder;
 import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -63,7 +64,9 @@ import java.util.Iterator;
  */
 public class Anthologiser 
 {
-    static String MISC_SERVER = "http://dev.austese.net/harpur/";
+    static String HARPUR_SERVER = "http://dev.austese.net/harpur/";
+    static String MISC_URL = 
+        "http://dev.austese.net/misc/english/harpur/anthologies/";
     static String MISC_FOLDER = "@misc";
     /** keys for config file */
     static int MAX_POEMS_PER_FOLDER = 15;
@@ -279,13 +282,13 @@ public class Anthologiser
     void addPoem( String title, String file, String hWork, String hVersion, 
             Element root ) throws Exception
     {
-        String key = "%"+hWork;
+        String key = "%"+hWork.toLowerCase();
         MultiFormatDir mfd;
         if ( poems.containsKey(key) )
             mfd = poems.get( key );
         else
         {
-            File mfdDir = new File( poems.getTempDir(), "%"+hWork );
+            File mfdDir = new File( poems.getTempDir(), "%"+key );
             mfd = new MultiFormatDir( mfdDir );
             title = Titeliser.getTitle( title );
             mfd.addConfigPair( JSONKeys.TITLE, title );
@@ -293,7 +296,7 @@ public class Anthologiser
         }
         String fname = Utils.fileName( file );
         String suffix = Utils.fileSuffix( file );
-        mfd.add( toBytes(root), "", fname, hVersion, suffix );
+        mfd.add( toBytes(root), "", fname, hVersion.toLowerCase(), suffix );
     }
     private static int push( StringBuilder sb, char token, int state )
     {
@@ -424,12 +427,43 @@ public class Anthologiser
                     byte[] data = new byte[(int)files[i].length()];
                     fis.read( data );
                     fis.close();
-                    files[i].delete();
-                    fos.write( data );
+                    // keep old files
+                    String contents = new String(data,"UTF-8");
+                    int ulPos = contents.indexOf("<ul>");
+                    if ( ulPos > 4 && contents.endsWith("</li>") 
+                        && contents.startsWith("<li>") )
+                    {
+                        fos.write("<li><a href=\"".getBytes("UTF-8"));
+                        String url = MISC_URL+files[i].getName();
+                        fos.write(url.getBytes());
+                        fos.write("\">".getBytes());
+                        String description = contents.substring(4,ulPos);
+                        fos.write( description.getBytes("UTF-8") );
+                        fos.write("</a></li>\n".getBytes());
+                        // write out the truncated contents
+                        files[i].delete();
+                        files[i].createNewFile();
+                        FileOutputStream fos2 = new FileOutputStream(files[i]);
+                        String part = contents.substring(ulPos,contents.length()-5);
+                        fos2.write( part.getBytes("UTF-8") );
+                        fos2.close();
+                    }
                 }
                 fos.write("</ul></div>".getBytes());
                 fos.close();
             }
+            // write config - required by Calliope!!
+            File conf = new File(anthologiesDir,"config.conf");
+            boolean res = true;
+            if ( !conf.exists() )
+                res = conf.createNewFile();
+            if ( !res )
+                throw new Exception("failed to create conf file");
+            StringBuilder sb = new StringBuilder();
+            sb.append("{ \"format\": \"TEXT/HTML\" }");
+            FileOutputStream fos = new FileOutputStream( conf );
+            fos.write( sb.toString().getBytes() );
+            fos.close();
         }
     }
     /**
@@ -483,30 +517,32 @@ public class Anthologiser
             else if ( text != null )
             {
                 Node clone = child.cloneNode(true);
-                if ( clone.getNodeType()==Node.ELEMENT_NODE
-                        && clone.getNodeName().equals("div") )
+                if ( clone.getNodeType()==Node.ELEMENT_NODE )
                 {
-                    String type = ((Element)clone).getAttribute("type");
-                    String attr = ((Element)clone).getAttribute("xml:id");
-                    if ( type != null && type.toLowerCase().equals("hversion") 
-                            && attr != null && attr.startsWith("H") )
+                    if ( clone.getNodeName().equals("div") )
                     {
-                        hVersion = attr;
-                        hWork = hGetWork( hVersion );
-                    }
-                    String desc = extractDescription( clone );
-                    if ( desc != null )
-                    {
-                        String sName = simpleName(src.getName());
-                        Anthology anth = anthologies.get(sName);
-                        if ( anth != null )
+                        String type = ((Element)clone).getAttribute("type");
+                        String attr = ((Element)clone).getAttribute("xml:id");
+                        if ( type != null && type.toLowerCase().equals("hversion") 
+                                && attr != null && attr.startsWith("H") )
                         {
-                            if ( !anth.descriptionSet() )
-                                anth.setDescription( desc );
-                            if ( !anth.titleSet() )
-                                anth.setTitle( sName );
-                            if ( !versions.containsKey(sName) )
-                                versions.addVersion( sName, desc );
+                            hVersion = attr;
+                            hWork = hGetWork( hVersion );
+                        }
+                        String desc = extractDescription( clone );
+                        if ( desc != null )
+                        {
+                            String sName = simpleName(src.getName());
+                            Anthology anth = anthologies.get(sName);
+                            if ( anth != null )
+                            {
+                                if ( !anth.descriptionSet() )
+                                    anth.setDescription( desc );
+                                if ( !anth.titleSet() )
+                                    anth.setTitle( sName );
+                                if ( !versions.containsKey(sName) )
+                                    versions.addVersion( sName, desc );
+                            }
                         }
                     }
                 }
@@ -717,7 +753,7 @@ public class Anthologiser
         try
         {
             Anthology anth = new Anthology( miscDir, 
-                simpleName(src.getName()), linkBase, MISC_SERVER );
+                simpleName(src.getName()), linkBase, HARPUR_SERVER );
             anthologies.put(simpleName(src.getName()),anth);
             versions = new VersionsDocument( folder );
             versions.internalise();
