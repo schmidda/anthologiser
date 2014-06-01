@@ -178,7 +178,7 @@ public class FileMap extends HashMap<String,MultiFormatDir>
                         mfd.save( dstFolder, array[j] );
                         String poem = array[j].substring(1);
                         String base = Utils.makeDocID(anthology.getLinkBase());
-                        String path = (usingSubFolders)?base+subFolder+"%2F"+poem:base+poem;
+                        String path = (usingSubFolders)?base+subFolder+"/"+poem:base+poem;
                         anthology.addItem( mfd.getTitle(), path );
                     }
                 }

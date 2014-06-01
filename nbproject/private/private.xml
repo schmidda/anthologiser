@@ -4,13 +4,21 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/home/desmond/NetBeansProjects/Anthologiser/src/anthologiser/Anthologiser.java</file>
-            <file>file:/home/desmond/NetBeansProjects/Anthologiser/src/anthologiser/FileMap.java</file>
-            <file>file:/home/desmond/NetBeansProjects/Anthologiser/src/anthologiser/PunctIgnoreString.java</file>
-            <file>file:/home/desmond/NetBeansProjects/Anthologiser/src/anthologiser/XMLFolder.java</file>
-            <file>file:/home/desmond/NetBeansProjects/Anthologiser/src/anthologiser/MultiFormatDir.java</file>
+            <file>file:/home/desmond/NetBeansProjects/Anthologiser/src/anthologiser/Titeliser.java</file>
+            <file>file:/home/desmond/NetBeansProjects/Anthologiser/src/anthologiser/VersionsDocument.java</file>
+            <file>file:/home/desmond/NetBeansProjects/Anthologiser/src/anthologiser/Utils.java</file>
             <file>file:/home/desmond/NetBeansProjects/Anthologiser/src/anthologiser/FileItem.java</file>
             <file>file:/home/desmond/NetBeansProjects/Anthologiser/src/anthologiser/JSONFileItem.java</file>
+            <file>file:/home/desmond/NetBeansProjects/Anthologiser/src/anthologiser/Format.java</file>
+            <file>file:/home/desmond/NetBeansProjects/Anthologiser/src/anthologiser/Folder.java</file>
+            <file>file:/home/desmond/NetBeansProjects/Anthologiser/src/anthologiser/Anthologiser.java</file>
+            <file>file:/home/desmond/NetBeansProjects/Anthologiser/src/anthologiser/FileMap.java</file>
+            <file>file:/home/desmond/NetBeansProjects/Anthologiser/src/anthologiser/MVDFolder.java</file>
+            <file>file:/home/desmond/NetBeansProjects/Anthologiser/src/anthologiser/PunctIgnoreString.java</file>
+            <file>file:/home/desmond/NetBeansProjects/Anthologiser/src/anthologiser/XMLFolder.java</file>
+            <file>file:/home/desmond/NetBeansProjects/Anthologiser/src/anthologiser/FolderFactory.java</file>
+            <file>file:/home/desmond/NetBeansProjects/Anthologiser/src/anthologiser/MultiFormatDir.java</file>
+            <file>file:/home/desmond/NetBeansProjects/Anthologiser/src/anthologiser/Anthology.java</file>
         </group>
     </open-files>
 </project-private>

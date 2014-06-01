@@ -118,6 +118,6 @@ public class Utils {
     static String makeDocID( String path )
     {
         String spaced = path.replace( " ", "%20" );
-        return spaced.replace("/","%2F");
+        return spaced;
     }
 }

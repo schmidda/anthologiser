@@ -22,7 +22,6 @@ import java.io.ByteArrayOutputStream;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.DocumentBuilder;
 import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -419,7 +418,7 @@ public class Anthologiser
                 dst.createNewFile();
                 FileOutputStream fos = new FileOutputStream(dst);
                 byte[] bytes = 
-                    "<div id=\"listContainer\">\n<ul id=\"expList\">".getBytes();
+                    "<div id=\"anthologyIndex\" class=\"listContainer\">\n<ul class=\"expList\">".getBytes();
                 fos.write( bytes );
                 for ( int i=0;i<files.length;i++ )
                 {
@@ -434,7 +433,7 @@ public class Anthologiser
                         && contents.startsWith("<li>") )
                     {
                         fos.write("<li><a href=\"".getBytes("UTF-8"));
-                        String url = MISC_URL+files[i].getName();
+                        String url = MISC_URL+files[i].getName().toLowerCase();
                         fos.write(url.getBytes());
                         fos.write("\">".getBytes());
                         String description = contents.substring(4,ulPos);

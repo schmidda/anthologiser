@@ -145,7 +145,7 @@ public class Anthology
             String key = order.get( i );
             sb.append("<li><a href=\"");
             sb.append(server);
-            sb.append("mvdsingle?DOCID=");
+            sb.append("mvdsingle?DOC_ID=");
             String value = links.get(key);
             sb.append( value );
             sb.append("\">");
