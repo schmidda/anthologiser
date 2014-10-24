@@ -65,7 +65,7 @@ public class FileMap extends HashMap<String,MultiFormatDir>
                 String fname = files[i].getName();
                 if ( fname.startsWith("%") )
                 {
-                    ingest( files[i], relPath );
+                    ingest( files[i], relPath);
                     Utils.removeDir( files[i] );
                 }
                 else
@@ -140,7 +140,7 @@ public class FileMap extends HashMap<String,MultiFormatDir>
      * @param usingSubFolders true if we split up into subfolders
      */
     public void save( File dst, Anthology anthology, boolean usingSubFolders ) 
-            throws Exception
+        throws Exception
     {
         int numBuckets = 2*(int)Math.round(Math.log(size()));
         if ( numBuckets != 0 )
@@ -176,10 +176,14 @@ public class FileMap extends HashMap<String,MultiFormatDir>
                     {
                         MultiFormatDir mfd = get( array[j] );
                         mfd.save( dstFolder, array[j] );
-                        String poem = array[j].substring(1);
-                        String base = Utils.makeDocID(anthology.getLinkBase());
-                        String path = (usingSubFolders)?base+subFolder+"/"+poem:base+poem;
-                        anthology.addItem( mfd.getTitle(), path );
+                        String srcName = mfd.getSrcName();
+                        if ( srcName!=null && srcName.equals(anthology.name) )
+                        {
+                            String poem = array[j].substring(1);
+                            String base = Utils.makeDocID(anthology.getLinkBase());
+                            String path = (usingSubFolders)?base+subFolder+"/"+poem:base+poem;
+                            anthology.addItem( mfd.getTitle(), path );
+                        }
                     }
                 }
                 else

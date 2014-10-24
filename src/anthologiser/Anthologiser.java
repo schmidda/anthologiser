@@ -63,9 +63,9 @@ import java.util.Iterator;
  */
 public class Anthologiser 
 {
-    static String HARPUR_SERVER = "http://dev.austese.net/harpur/";
+    static String HARPUR_SERVER = "http://charles-harpur.org/harpur/";
     static String MISC_URL = 
-        "http://dev.austese.net/misc/english/harpur/anthologies/";
+        "http://charles-harpur.org/misc/english/harpur/anthologies/";
     static String MISC_FOLDER = "@misc";
     /** keys for config file */
     static int MAX_POEMS_PER_FOLDER = 15;
@@ -284,11 +284,14 @@ public class Anthologiser
         String key = "%"+hWork.toLowerCase();
         MultiFormatDir mfd;
         if ( poems.containsKey(key) )
+        {
             mfd = poems.get( key );
+            mfd.setSrcName(simpleName(src.getName()));
+        }
         else
         {
             File mfdDir = new File( poems.getTempDir(), "%"+key );
-            mfd = new MultiFormatDir( mfdDir );
+            mfd = new MultiFormatDir( mfdDir, simpleName(src.getName()));
             title = Titeliser.getTitle( title );
             mfd.addConfigPair( JSONKeys.TITLE, title );
             poems.put( key, mfd );
@@ -412,45 +415,57 @@ public class Anthologiser
             Anthology anth = anthologies.get(key1);
             File anthologiesDir = anth.getAnthologiesDir();
             File dst = new File( anthologiesDir, "index" );
+            StringBuilder sb = new StringBuilder();
             if ( !dst.exists() )
             {
-                File[] files = anthologiesDir.listFiles();
                 dst.createNewFile();
-                FileOutputStream fos = new FileOutputStream(dst);
-                byte[] bytes = 
-                    "<div id=\"anthologyIndex\" class=\"listContainer\">\n<ul class=\"expList\">".getBytes();
-                fos.write( bytes );
-                for ( int i=0;i<files.length;i++ )
-                {
-                    FileInputStream fis = new FileInputStream(files[i]);
-                    byte[] data = new byte[(int)files[i].length()];
-                    fis.read( data );
-                    fis.close();
-                    // keep old files
-                    String contents = new String(data,"UTF-8");
-                    int ulPos = contents.indexOf("<ul>");
-                    if ( ulPos > 4 && contents.endsWith("</li>") 
-                        && contents.startsWith("<li>") )
-                    {
-                        fos.write("<li><a href=\"".getBytes("UTF-8"));
-                        String url = MISC_URL+files[i].getName().toLowerCase();
-                        fos.write(url.getBytes());
-                        fos.write("\">".getBytes());
-                        String description = contents.substring(4,ulPos);
-                        fos.write( description.getBytes("UTF-8") );
-                        fos.write("</a></li>\n".getBytes());
-                        // write out the truncated contents
-                        files[i].delete();
-                        files[i].createNewFile();
-                        FileOutputStream fos2 = new FileOutputStream(files[i]);
-                        String part = contents.substring(ulPos,contents.length()-5);
-                        fos2.write( part.getBytes("UTF-8") );
-                        fos2.close();
-                    }
-                }
-                fos.write("</ul></div>".getBytes());
-                fos.close();
+                sb.append("<div id=\"anthologyIndex\" class=\"listContainer\">\n"
+                    +"<ul class=\"expList\"></ul></div>");
             }
+            else
+            {
+                FileInputStream fis = new FileInputStream(dst);
+                byte[] data = new byte[(int)dst.length()];
+                fis.read(data);
+                sb.append(new String(data,"UTF-8"));
+                fis.close();
+            }
+            File[] files = anthologiesDir.listFiles();
+            for ( int i=0;i<files.length;i++ )
+            {
+                FileInputStream fis = new FileInputStream(files[i]);
+                byte[] data = new byte[(int)files[i].length()];
+                fis.read( data );
+                fis.close();
+                // keep old files
+                String contents = new String(data,"UTF-8");
+                int ulPos = contents.indexOf("<ul>");
+                if ( ulPos > 4 && contents.endsWith("</li>") 
+                    && contents.startsWith("<li>") )
+                {
+                    StringBuilder li = new StringBuilder();
+                    li.append("<li><a href=\"");
+                    String url = MISC_URL+files[i].getName().toLowerCase();
+                    li.append(url);
+                    li.append("\">");
+                    String description = contents.substring(4,ulPos);
+                    li.append( description );
+                    li.append("</a></li>\n");
+                    int ulEnd = sb.lastIndexOf("</ul>");
+                    if ( ulEnd != -1 )
+                        sb.insert( ulEnd, li.toString());
+                    // write out the truncated contents
+                    files[i].delete();
+                    files[i].createNewFile();
+                    FileOutputStream fos2 = new FileOutputStream(files[i]);
+                    String part = contents.substring(ulPos,contents.length()-5);
+                    fos2.write( part.getBytes("UTF-8") );
+                    fos2.close();
+                }
+            }
+            FileOutputStream fos = new FileOutputStream(dst);
+            fos.write( sb.toString().getBytes("UTF-8") );
+            fos.close();
             // write config - required by Calliope!!
             File conf = new File(anthologiesDir,"config.conf");
             boolean res = true;
@@ -458,9 +473,9 @@ public class Anthologiser
                 res = conf.createNewFile();
             if ( !res )
                 throw new Exception("failed to create conf file");
-            StringBuilder sb = new StringBuilder();
+            sb = new StringBuilder();
             sb.append("{ \"format\": \"TEXT/HTML\" }");
-            FileOutputStream fos = new FileOutputStream( conf );
+            fos = new FileOutputStream( conf );
             fos.write( sb.toString().getBytes() );
             fos.close();
         }

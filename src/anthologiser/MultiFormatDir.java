@@ -31,6 +31,8 @@ public class MultiFormatDir
     File parent;
     String relPath;
     JSONDocument newConf;
+    /** simple name of source file */
+    String srcName;
     /**
      * Read the contents of a directory and record the relative path of items
      * @param parent the temp dir to store it in
@@ -73,6 +75,22 @@ public class MultiFormatDir
             }
         }
     }
+    /**
+     * Get the simple name of the source file
+     * @return the source name
+     */
+    String getSrcName()
+    {
+        return srcName;
+    }
+    /**
+     * Get the simple name of the source file
+     * @param the source name
+     */
+    void setSrcName( String name )
+    {
+        this.srcName = name;
+    }
     public String getTitle()
     {
         String title = "";
@@ -112,17 +130,20 @@ public class MultiFormatDir
     {
         this.parent = parent;
         this.relPath = relPath;
+        this.srcName = srcName;
         items = new ArrayList<Folder>();
         readDir( dir );
     }
     /**
      * Create an empty folder item with a name. For splitting.
      * @param parent the temporary directory in which we reside
+     * @param srcName the short name of the source file
      */
-    public MultiFormatDir( File parent )
+    public MultiFormatDir( File parent, String srcName )
     {
         items = new ArrayList<Folder>();
         this.parent = parent;
+        this.srcName = srcName;
         this.relPath = "";
     }
     private Format suffixToFormat( String suffix ) throws Exception
